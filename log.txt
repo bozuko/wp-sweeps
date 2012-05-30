@@ -7782,3 +7782,57 @@
 2012-05-26 22:36:29 [68.112.252.178] - date, 2012-05-26 18:35, now, 2012-05-26 18:36
 2012-05-26 22:36:30 [68.112.252.178] - start, 2012-05-26 22:36:30 000000
 2012-05-26 22:36:30 [68.112.252.178] - end, 2012-05-26 22:36:30 000000
+2012-05-30 14:35:30 [68.112.252.178] - Array
+(
+    [algorithm] => HMAC-SHA256
+    [expires] => 1338393600
+    [issued_at] => 1338388530
+    [oauth_token] => AAAEVTK3qq1kBAOi4kv8aAu5BwPLr44I7bJfzakrLM1jUg7bTm7F7wmNCC54Eph6M4IvTcW0C36JYKneCfBVw41wPeFZAXg0CkPZApwaH8gTdo5RFUV
+    [page] => Array
+        (
+            [id] => 153717738037827
+            [liked] => 
+            [admin] => 
+        )
+
+    [user] => Array
+        (
+            [country] => us
+            [locale] => en_US
+            [age] => Array
+                (
+                    [min] => 21
+                )
+
+        )
+
+    [user_id] => 100003851881543
+)
+
+2012-05-30 14:35:33 [68.112.252.178] - Array
+(
+    [algorithm] => HMAC-SHA256
+    [expires] => 1338393600
+    [issued_at] => 1338388534
+    [oauth_token] => AAAEVTK3qq1kBAOi4kv8aAu5BwPLr44I7bJfzakrLM1jUg7bTm7F7wmNCC54Eph6M4IvTcW0C36JYKneCfBVw41wPeFZAXg0CkPZApwaH8gTdo5RFUV
+    [page] => Array
+        (
+            [id] => 153717738037827
+            [liked] => 1
+            [admin] => 
+        )
+
+    [user] => Array
+        (
+            [country] => us
+            [locale] => en_US
+            [age] => Array
+                (
+                    [min] => 21
+                )
+
+        )
+
+    [user_id] => 100003851881543
+)
+

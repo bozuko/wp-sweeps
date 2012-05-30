@@ -198,6 +198,7 @@ class Sweeps_Campaign extends Snap_Wordpress_PostType
         $method = strtolower( $_SERVER['REQUEST_METHOD'] );
         // the "page" property indicates facebook tab
         if( $method == 'post' && ($sr = $this->facebook()->getSignedRequest()) && @$sr['page'] ){
+            Sweeps::log( $sr );
             $_SESSION['facebook_page'] = $this->_facebookPage = $sr['page']['id'];
             $_SESSION['facebook_liked'] = $this->_facebookLiked = $sr['page']['liked'];
             $_SESSION['facebook_admin'] = $this->_facebookAdmin = $sr['page']['admin'];
@@ -207,15 +208,29 @@ class Sweeps_Campaign extends Snap_Wordpress_PostType
                 $url = add_query_arg('shortcut', $s, $url);
             }
             
+            $url = add_query_arg('sr', base64_encode(json_encode($sr)), $url);
             wp_redirect( $url );
             exit;
         }
         
         else if( @$_GET['facebook_tab'] ){
+            
+            $sr = @$_GET['sr'];
+            if( $sr ) $sr = json_decode( base64_decode( $sr), true );
+            else $sr = array('page'=>array('liked'=>0,'id'=>null,'admin'=>0));
+            
             $this->_facebookTab = true;
-            $this->_facebookPage = @$_SESSION['facebook_page'];
-            $this->_facebookLiked = @$_SESSION['facebook_liked'];
-            $this->_facebookAdmin = @$_SESSION['facebook_admin'];
+            $this->_facebookPage = isset( $sr['page'] ) && isset( $sr['page']['id'] ) ? $sr['page']['id'] : @$_SESSION['facebook_page'];
+            $this->_facebookLiked = isset( $sr['page'] ) && isset( $sr['page']['liked'] ) ? $sr['page']['liked'] : @$_SESSION['facebook_liked'];
+            $this->_facebookAdmin = isset( $sr['page'] ) && isset( $sr['page']['admin'] ) ? $sr['page']['admin'] : @$_SESSION['facebook_admin'];
+            
+            if( @$_GET['sr'] ){
+                $_SESSION['facebook_page'] = $this->_facebookPage;
+                $_SESSION['facebook_liked'] = $this->_facebookLiked;
+                $_SESSION['facebook_admin'] = $this->_facebookAdmin;
+            }
+            
+            Sweeps::log('sr', @$_GET['sr'], $sr);
         }
         
         elseif( $this->isFacebookConnect() && ($user = $this->getFacebookUser())){
