@@ -1,0 +1,70 @@
+/* =============================================================================
+   HTML5 Boilerplate CSS: h5bp.com/css
+   ========================================================================== */
+
+
+
+/* ===== Initializr Styles =====================================================
+   Author: Jonathan Verrecchia - verekia.com/initializr/responsive-template
+   ========================================================================== */
+
+body{ background: #fff; }
+
+.wrapper{
+	background: #fff;
+	margin: 0 auto;
+    max-width: 760px;
+}
+
+header .banner img {
+    display: none;
+    width: 100%;
+}
+
+header h1 { display: none; }
+header nav { display: block; background: #f0f0f0; padding-top: 6px; font-size: 13px; }
+header nav ul.nav { padding-left: 10px; margin-bottom: 0; }
+
+section { padding: 20px; }
+
+body.facebook-tab { overflow: hidden; }
+
+section .content .intro { margin-bottom: 2em; font-size: 1.2em; }
+.control-day select { width: auto; }
+
+ol li, ul li { margin-bottom: 1em; }
+
+.like-us { display: none; text-align: center; }
+.like-us h3 { font-size: 30px; padding-top: 10px; color: #3B5999; line-height: 1.4em; }
+.like-us-arrow { position: absolute; top: 16px; right: 2px; }
+
+.form-actions { background: #fff; border-top: 0; margin-top: 0; margin-bottom: 0; padding-top: 0; padding-left: 0; }
+
+
+/* =============================================================================
+   Media Queries
+   ========================================================================== */
+
+/* Little baby screens */
+@media only screen and (min-width: 0px) and (max-width: 400px){
+    header .banner .image-400 { display: block; }
+}
+/* Medium size screens */
+@media only screen and (min-width: 401px) and (max-width: 520px) {
+    header .banner .image-520 { display: block; }
+}
+/* The big boys */
+@media only screen and (min-width: 521px) {
+    header .banner .image-760 { display: block; }
+	section h2 { display: none; }
+	section .content { min-height: 200px; }
+}
+
+
+/* =============================================================================
+   Print Styles
+   ========================================================================== */
+ 
+@media print {
+  
+}

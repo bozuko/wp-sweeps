@@ -1,0 +1,52 @@
+.icon16.icon-page, #adminmenu .menu-icon-sweep_campaign div.wp-menu-image { }
+
+.entry-count { font-size: 40px; line-height: 1.2em; margin: 10px; text-align: center; color: #333; font-weight: normal; }
+.entry-count a { text-decoration: none; }
+
+#wpadminbar .bozuko-ab { background: url("../images/bozuko-24.png") no-repeat 50% 50%; height: 28px; line-height: 28x; cursor: pointer; width: 75px; display: block; top: 2px; position: relative; }
+
+.sweeps-table { font-size: 14px; }
+.sweeps-table th { text-align: left; background: #f3f3f3; padding: 4px; }
+.sweeps-table td { padding: 4px; }
+
+.wrap h2.campaign-tabs { padding-left: 20px; }
+
+.prize-form { margin: 10px 0; }
+.prize-form .header { background: whiteSmoke; border-radius: 4px 4px 0 0; border: 1px solid #dfdfdf; padding: 4px 10px; color: #666; font-size: 20px; text-align:center; line-height: 1.2em; cursor: n-resize; }
+.prize-form .mainstuff { background: whiteSmoke; border-radius: 0 0 4px 4px; border: 1px solid #dfdfdf; border-top-color: #fff; padding: 10px; }
+
+
+/* The Forminator! */
+.forminator .left{ width: 200px; float: left; min-height: 200px; background: #f2f2f2; border: 1px solid #ccc; }
+.forminator .right{ margin-left: 210px; background: #fff; min-height: 200px; border: 1px solid #ccc; background: #f2f2f2; }
+
+.forminator .element { margin: 5px; padding: 6px; border: 1px solid #999; background: #fff; position: relative; }
+.forminator .left .in-right { display: none; }
+.forminator .right .in-left { display: none; }
+.forminator .tools { float: right; padding-top: 2px; }
+.forminator .tools a { cursor: pointer; margin-left: 3px; }
+
+.forminator .type-label { padding: 2px 4px; font-size: 10px; background: #f3f3f3; border: 1px solid #e8e8e8; color: #999; display: inline-block; margin-right: 10px; width: 100px; }
+
+.forminator input.label { display: none; }
+.forminator .element .form { display: none; margin: 10px 0 0px; border: 1px solid #d8d8d8; padding: 10px; }
+.forminator .element .buttons { margin-top: 10px; text-align: center; }
+
+.forminator .save { display: none; }
+.forminator .editing .edit { display: none; }
+.forminator .editing .save { display: inline; }
+.forminator .remove, .forminator .remove:hover { color: red; }
+
+.forminator .admin-form { width: 100%; }
+.forminator .admin-form th{ width: 100px; text-align:right;}
+
+.forminator textarea[name=options]{ width: 100%; height: 80px; }
+
+.forminator .validators ul { margin: 0; }
+.forminator .validators li { margin-bottom: 5px; }
+
+.forminator .editing input.label { display: inline-block; border: 1px solid #ccc; padding: 2px; }
+.forminator .editing span.label { display: none; padding: 2px; }
+.forminator .editing .form { display: block; }
+
+.forminator .left .element { cursor: move; }
