@@ -32,6 +32,7 @@ jQuery(function($){
           , $tab = $('#enter-tab')
           ;
         
+        $form.append($('<input type="hidden" name="_ajax_" value="1" />'));
         
         $form.submit(function(e){
             e.preventDefault();
@@ -150,6 +151,13 @@ jQuery(function($){
             
             switch( data.status ){
                 case 'connected':
+                    
+                    if( $('.the-form form').length ){
+                        $('<input type="hidden" name="fb_token" />')
+                            .val(data.authResponse.accessToken)
+                            .appendTo($('.the-form form'))
+                            ;
+                    }
                     
                     // update the mask
                     $('#facebook-connect-mask .facebook-login').remove();

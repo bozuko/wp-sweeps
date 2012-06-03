@@ -27,6 +27,7 @@ class Sweeps_Campaign extends Snap_Wordpress_PostType
         parent::__construct();
         $this->form = new Sweeps_Campaign_Form;
         do_action('sweep_campaign_init');
+        add_action('sweep_enter', array(&$this, 'sweep_enter'));
     }
     
     public function get_success()
@@ -198,7 +199,6 @@ class Sweeps_Campaign extends Snap_Wordpress_PostType
         $method = strtolower( $_SERVER['REQUEST_METHOD'] );
         // the "page" property indicates facebook tab
         if( $method == 'post' && ($sr = $this->facebook()->getSignedRequest()) && @$sr['page'] ){
-            Sweeps::log( $sr );
             $_SESSION['facebook_page'] = $this->_facebookPage = $sr['page']['id'];
             $_SESSION['facebook_liked'] = $this->_facebookLiked = $sr['page']['liked'];
             $_SESSION['facebook_admin'] = $this->_facebookAdmin = $sr['page']['admin'];
@@ -230,7 +230,6 @@ class Sweeps_Campaign extends Snap_Wordpress_PostType
                 $_SESSION['facebook_admin'] = $this->_facebookAdmin;
             }
             
-            Sweeps::log('sr', @$_GET['sr'], $sr);
         }
         
         elseif( $this->isFacebookConnect() && ($user = $this->getFacebookUser())){
@@ -489,7 +488,7 @@ class Sweeps_Campaign extends Snap_Wordpress_PostType
         // count the number of entries
         global $wpdb;
         $id = get_the_ID();
-        $count = $wpdb->get_var("SELECT COUNT(*) FROM $wpdb->posts p LEFT JOIN $wpdb->postmeta m ON m.post_id = p.ID WHERE p.post_type = 'sweep_entry'  AND m.meta_key = 'campaign' AND m.meta_value = '$id';");
+        $count = $wpdb->get_var("SELECT COUNT(*) FROM $wpdb->posts p LEFT JOIN $wpdb->postmeta m ON m.post_id = p.ID WHERE p.post_type = 'sweep_entry' AND p.post_status='publish' AND m.meta_key = 'campaign' AND m.meta_value = '$id';");
         ?>
         <h4 class="entry-count"><a href="edit.php?post_type=sweep_entry&campaign=<?= $id ?>"><?= $count ?></a></h4>
         <ul>
@@ -988,6 +987,8 @@ class Sweeps_Campaign extends Snap_Wordpress_PostType
      */
     public function enter()
     {
+        
+         
         if( @$_COOKIE['sweep_age_restriction'] ){
             $this->_ageRestricted = true;
             do_action('sweep_age_restriction');
@@ -1121,9 +1122,9 @@ class Sweeps_Campaign extends Snap_Wordpress_PostType
     {
         
         // check for ajax header
-        //$headers = apache_request_headers();
-        if( @$_SERVER['HTTP_X_REQUESTED_WITH'] != 'XMLHttpRequest' ) return;
-        // Sweeps::log( print_r( $_SERVER, true ) );
+        $ajax = strcasecmp( @$_SERVER['HTTP_X_REQUESTED_WITH'], 'XMLHttpRequest') === 0 || isset($_POST['_ajax_']);
+        
+        if( !$ajax ) return;
         
         if( $this->success ){
             ob_start();

@@ -48,7 +48,19 @@ class Sweeps extends Snap_Wordpress_Plugin
         $date = date('Y-m-d H:i:s');
         $ip = $_SERVER['REMOTE_ADDR'];
         $log = "$date [$ip] - $str\n";
-        file_put_contents( SWEEPS_DIR.'/log.txt', $log, FILE_APPEND );
+        $dir = wp_upload_dir();
+        $dir = $dir['path'];
+        file_put_contents(  $dir.'/log.txt', $log, FILE_APPEND );
+    }
+    /**
+     * @wp.action               wp
+     * @wp.priority             0
+     */
+    public function pseudo_ajax_header()
+    {
+        if( @$_REQUEST['_ajax_'] ){
+            $_SERVER['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
+        }
     }
     
     /**

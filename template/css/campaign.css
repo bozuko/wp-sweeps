@@ -5,6 +5,8 @@ html{ overflow: visible; }
 body.facebook-tab { overflow: hidden; background: #fff; }
 .facebook-tab .container{ box-shadow: 0 0 0; }
 
+img, object, embed { max-height: auto; }
+
 h3 { color: #333; font-size: 24px; }
 
 #wpadminbar .bozuko-ab { background: url("../../resources/images/bozuko-24.png") no-repeat 50% 50%; height: 28px; line-height: 28x; cursor: pointer; width: 75px; display: block; top: 2px; position: relative; }
