@@ -2,6 +2,14 @@
 global $sweeps_campaign;
 $prizes = $sweeps_campaign->get_prizes();
 
+$details = $sweeps_campaign->get_form()->field('details_page')->getValue();
+
+if( $details ){
+    // print_r($sweeps_campaign);
+    echo apply_filters('the_content', $details );
+    return;
+}
+
 $prizes->rewind_posts();
 if( $prizes->post_count ):?>
     <? if( $prizes->post_count > 1 ): ?>

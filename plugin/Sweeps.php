@@ -89,6 +89,7 @@ class Sweeps extends Snap_Wordpress_Plugin
 .login h1 a {
     background-image: url(<?= SWEEPS_URL ?>/resources/images/logo.png);
     height: 125px;
+    background-size: auto auto;
 }
 </style>
         <?php

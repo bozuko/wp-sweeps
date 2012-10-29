@@ -215,7 +215,7 @@ class Sweeps_Entry extends Snap_Wordpress_PostType
     public function get_counts( $start = null, $end = null, $campaign = null )
     {
         global $wpdb;
-        $where = array("m.meta_key = 'campaign'");
+        $where = array("m.meta_key = 'campaign'", "e.post_status = 'publish'");
         if( $campaign ) $where[] = "m.meta_value = '$campaign'";
         if( $start ){
             $start = strtotime( $start );

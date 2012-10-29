@@ -82,7 +82,7 @@
 	form.nice div.form-field.error .medium.oversize + small, form.nice .medium.oversize + small.error { width: 256px; }
 	form.nice div.form-field.error .large.oversize + small, form.nice .large.oversize + small.error { width: 436px; }
     
-    .webkit select, .webkit form.nice select { padding-right: 18px; background-image: url(../images/misc/select-arrow.png), url(../images/misc/input-bg.png); background-position:100% 50%,  0 0; background-repeat: no-repeat; }
+  select, form.nice select { padding-right: 18px; background-image: url(../images/misc/select-arrow.png), url(../images/misc/input-bg.png); background-position:100% 50%,  0 0; background-repeat: no-repeat; }
     
 	/* -----------------------------------------
 	   Custom Forms

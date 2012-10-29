@@ -217,6 +217,15 @@ class Sweeps_Campaign_Form extends Snap_Wordpress_Form
     
     /**
      * @form.field.type             wysiwyg
+     * @form.field.label            Details Page
+     * @form.field.hide_label       false
+     * @form.field.group            messages
+     * @campaign.tab                display
+     */
+    public $details_page;
+    
+    /**
+     * @form.field.type             wysiwyg
      * @form.field.label            Thank you Body
      * @form.field.hide_label       false
      * @form.field.group            messages
