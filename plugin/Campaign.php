@@ -879,7 +879,7 @@ class Sweeps_Campaign extends Snap_Wordpress_PostType
         }
     }
     
-    public function getEntryForm( $id=null)
+    public function getEntryForm( $id=null )
     {
         if( !$this->entry_form ){
             $form = new Sweeps_Entry_Form;
@@ -935,6 +935,8 @@ class Sweeps_Campaign extends Snap_Wordpress_PostType
                 'campaign'          => $id,
                 'campaign_submit'   => 1
             ));
+            
+            $this->entry_form = apply_filters('sweeps_after_init_form', $this->entry_form);
         }
         return $this->entry_form;
     }

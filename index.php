@@ -3,7 +3,7 @@
 Plugin Name: Sweeps
 Plugin URI: http://bozuko.com
 Description: Bozuko Sweeps is an easy to use plugin to create Sweepstakes for Facebook and standalone
-Version: 1.0
+Version: 1.0.1a
 Author: Bozuko
 Author URI: http://bozuko.com
 License: GPLv2 or later

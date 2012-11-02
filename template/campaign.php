@@ -92,6 +92,7 @@ wp_enqueue_script( 'customforms', _template_url('/zurb-foundation/javascripts/jq
 								<? Snap_Wordpress_Template::load('sweeps', 'includes/form') ?>
 							<? endif; ?>
 						<? endif; ?>
+						<? do_action('sweep_after_form') ?>
 					<? endif; ?>
 				</li>
 				<li id="details-tab" class="tab-content" >
