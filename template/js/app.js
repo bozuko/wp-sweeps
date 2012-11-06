@@ -34,6 +34,7 @@ jQuery(function($){
         
         $form.append($('<input type="hidden" name="_ajax_" value="1" />'));
         
+        $form.unbind('submit');
         $form.submit(function(e){
             e.preventDefault();
             $submit.val('Entering...').attr('disabled', true);

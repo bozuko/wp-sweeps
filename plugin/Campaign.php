@@ -1018,8 +1018,6 @@ class Sweeps_Campaign extends Snap_Wordpress_PostType
             return;
         }
         
-        $age = get_post_meta( get_the_ID(), 'ageRestriction', true );
-        
         if( $this->isBeforeStart() ){
             $form->addFormError("Hold your horses. This sweepstakes does not begin until ".$start->format('m/d/Y h:i a'));
             return;
@@ -1032,43 +1030,12 @@ class Sweeps_Campaign extends Snap_Wordpress_PostType
         
         if( !$form->process() ) return;
             
-        if( $age ){
-            // check the birthday
-            $age = (int) $age;
-            $birthday   = new DateTime( $form->field('birthday')->getValue() );
-            $tooYoung   = false;
-            
-            $year       = (int)$birthday->format('Y');
-            $month      = (int)$birthday->format('m');
-            $day        = (int)$birthday->format('d');
-            
-            $now        = new DateTime( null, new DateTimeZone( $this->getValue('timezone') ) );
-            
-            $nowYear    = (int)$now->format('Y');
-            $nowMonth   = (int)$now->format('m');
-            $nowDay     = (int)$now->format('d');
-            
-            $theYear    = $nowYear - $age;
-            
-            if( $year > $theYear ) $tooYoung = true;
-            
-            else if( $year == $theYear ){
-                
-                if( $nowMonth < $month ){
-                    $tooYoung = true;
-                }
-                else if( $nowMonth == $month && $nowDay < $day ){
-                    $tooYoung = true;
-                }
-            }
-            
-            if( $tooYoung ){
-                $this->_ageRestricted = true;
-                setcookie('sweep_age_restriction', true, time()+60*60*24*1);
-                $form->addFormError("Sorry, but you must be at least $age to enter this sweepstakes.");
-                do_action('sweep_age_restriction');
-                return;
-            }
+        if( ($birthday = $form->field('birthday')->getValue()) && $this->tooYoung($birthday) ) {
+            $this->_ageRestricted = true;
+            setcookie('sweep_age_restriction', true, time()+60*60*24*1);
+            $form->addFormError("Sorry, but you must be at least $age to enter this sweepstakes.");
+            do_action('sweep_age_restriction');
+            return;
         }
         
         $post_args = array(
@@ -1114,6 +1081,43 @@ class Sweeps_Campaign extends Snap_Wordpress_PostType
         $_SESSION['sweep_entry'] = $id;
         wp_redirect($_SERVER['REQUEST_URI']);
         exit;
+    }
+    
+    public function tooYoung( $formValue )
+    {
+        // check the birthday
+        $tooYoung = false;
+        $age = get_post_meta( get_the_ID(), 'ageRestriction', true );
+        if( !$age ) return $tooYoung;
+        $age        = (int) $age;
+        $birthday   = new DateTime( $formValue );
+        $tooYoung   = false;
+        
+        $year       = (int)$birthday->format('Y');
+        $month      = (int)$birthday->format('m');
+        $day        = (int)$birthday->format('d');
+        
+        $now        = new DateTime( null, new DateTimeZone( $this->getValue('timezone') ) );
+        
+        $nowYear    = (int)$now->format('Y');
+        $nowMonth   = (int)$now->format('m');
+        $nowDay     = (int)$now->format('d');
+        
+        $theYear    = $nowYear - $age;
+        
+        if( $year > $theYear ) $tooYoung = true;
+        
+        else if( $year == $theYear ){
+            
+            if( $nowMonth < $month ){
+                $tooYoung = true;
+            }
+            else if( $nowMonth == $month && $nowDay < $day ){
+                $tooYoung = true;
+            }
+        }
+        
+        return $tooYoung;
     }
     
     /**
