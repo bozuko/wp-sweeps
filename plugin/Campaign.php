@@ -646,7 +646,7 @@ class Sweeps_Campaign extends Snap_Wordpress_PostType
             $post->$key = $value;
         }
         
-        if( 1 || $this->isFacebookTab() || $this->isFacebookConnect() ){
+        if( $this->isFacebookTab() || $this->isFacebookConnect() ){
             wp_enqueue_script('facebook-sdk', 'https://connect.facebook.net/en_US/all.js', array('jquery'));
         }
         
@@ -667,11 +667,6 @@ class Sweeps_Campaign extends Snap_Wordpress_PostType
             'facebook_id'           => $this->form->field('facebook_id')->getValue(),
             'channel_url'           => SWEEPS_URL.'/channel.html'
         ));
-        
-        if( $this->_facebookTab ){
-            add_filter( 'show_admin_bar', '__return_false' );
-            remove_action('wp_head', '_admin_bar_bump_cb');
-        }
         do_action('before_display_sweep');
         Snap_Wordpress_Template::load('sweeps', 'campaign');
         exit;
@@ -1008,7 +1003,8 @@ class Sweeps_Campaign extends Snap_Wordpress_PostType
         // check to see for the entry field
         if( !@$_POST['campaign_submit'] ) return;
         $form = $this->getEntryForm();
-        $form->setValues( $_POST, true );
+        $post = apply_filters('enter_campaign_post', $_POST);
+        $form->setValues( $post, true );
         $campaign = @$_POST['campaign'];
         
         // check the nonce
@@ -1032,7 +1028,7 @@ class Sweeps_Campaign extends Snap_Wordpress_PostType
             
         if( ($birthday = $form->field('birthday')->getValue()) && $this->tooYoung($birthday) ) {
             $this->_ageRestricted = true;
-            setcookie('sweep_age_restriction', true, time()+60*60*24*1);
+            setcookie('sweep_age_restriction', true, apply_filters('sweeps_age_restriction_cookie_expiration', time()+60*60*24*1));
             $form->addFormError("Sorry, but you must be at least $age to enter this sweepstakes.");
             do_action('sweep_age_restriction');
             return;
@@ -1098,6 +1094,7 @@ class Sweeps_Campaign extends Snap_Wordpress_PostType
         $day        = (int)$birthday->format('d');
         
         $now        = new DateTime( null, new DateTimeZone( $this->getValue('timezone') ) );
+        $now        = apply_filters('sweeps_age_from', $now);
         
         $nowYear    = (int)$now->format('Y');
         $nowMonth   = (int)$now->format('m');
@@ -1117,7 +1114,7 @@ class Sweeps_Campaign extends Snap_Wordpress_PostType
             }
         }
         
-        return $tooYoung;
+        return apply_filters('sweeps_age_restriction', $tooYoung, $formValue, $age );
     }
     
     /**
