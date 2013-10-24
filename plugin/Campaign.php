@@ -1083,7 +1083,7 @@ class Sweeps_Campaign extends Snap_Wordpress_PostType
     {
         // check the birthday
         $tooYoung = false;
-        $age = get_post_meta( get_the_ID(), 'ageRestriction', true );
+        $age = apply_filters('age_gate', get_post_meta( get_the_ID(), 'ageRestriction', true ));
         if( !$age ) return $tooYoung;
         $age        = (int) $age;
         $birthday   = new DateTime( $formValue );
