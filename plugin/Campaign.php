@@ -68,7 +68,8 @@ class Sweeps_Campaign extends Snap_Wordpress_PostType
             'facebook'  => 'Facebook',
             // 'form'      => 'Form',
             'display'   => 'Display',
-            'prizes'    => 'Prizes'
+            'prizes'    => 'Prizes',
+            'encryption'    => 'Encryption'
         );
         return apply_filters('sweeps_campaign_tabs', $tabs);
     }
@@ -371,6 +372,23 @@ class Sweeps_Campaign extends Snap_Wordpress_PostType
         Snap_Wordpress_Util::datepicker();
         // we can remove the post_type support for editor
         remove_post_type_support( $this->name, 'editor');
+    }
+    
+    /**
+     * @wp.meta_box
+     * @wp.title                    Encryption
+     * @campaign.tab                encryption
+     */
+    public function meta_box_encryption( $post )
+    {
+        $this->form->render(array(
+            'group'             => 'encryption',
+            'renderer'          => 'Snap_Wordpress_Form_Renderer_AdminTable'
+        ));
+        // add a button to generate the key..
+        ?>
+        <a href="#" class="button button-primary">Generate Key</a>
+        <?php
     }
     
     /**
@@ -1053,14 +1071,19 @@ class Sweeps_Campaign extends Snap_Wordpress_PostType
             // not sure if we really need to do anything else here.
         }
         
+        $opensslKey = $this->get_form()->field('openssl_public_key');
+        
         foreach( $form->getValues() as $key => $value ){
+            if( $opensslKey && $form->field($key) && $form->field($key)->cfg('encrypt') ){
+                $value = openssl_public_encrypt($value, $value, $opensslKey);
+            }
             update_post_meta( $id, $key, $value );
         }
         
         // add some custom stuff too
         update_post_meta( $id, 'IP', $_SERVER['REMOTE_ADDR'] );
         update_post_meta( $id, 'sweep_id', $_POST['campaign'] );
-        update_post_meta( $id, 'verified', true );
+        update_post_meta( $id, 'verified', true );                                                     
         
         if( ($user = $this->getFacebookUser()) ){
             update_post_meta( $id, 'facebook_id', $user['id'] );

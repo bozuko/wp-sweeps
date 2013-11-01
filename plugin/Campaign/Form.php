@@ -251,6 +251,15 @@ class Sweeps_Campaign_Form extends Snap_Wordpress_Form
      */
     public $after_end_message;
     
+    /**
+     * @form.field.type             textarea
+     * @form.field.label            Public Key
+     * @form.field.hide_label       false
+     * @form.field.group            encryption
+     * @campaign.tab                encryption
+     */
+    public $openssl_public_key;
+    
     
     public function getOptions( $name )
     {
