@@ -1055,7 +1055,8 @@ class Sweeps_Campaign extends Snap_Wordpress_PostType
         $post_args = array(
             'post_title'    => strtolower(trim($form->field('email')->getValue())),
             'post_type'     => 'sweep_entry',
-            'post_status'   => 'publish'
+            'post_status'   => 'publish',
+            'post_parent'   => $_POST['campaign']
         );
         
         $id = wp_insert_post( $post_args, true);

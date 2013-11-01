@@ -102,7 +102,7 @@ class Sweeps_Manager extends Snap_Wordpress_Plugin
     public function overview_widget()
     {
         $GLOBALS['campaigns'] = Snap::singleton('Sweeps_Campaign')->get_all();
-        Snap_Wordpress_Template::load('sweeps', 'admin/dashboard/overview');
+        Snap_Wordpress_Template::load('sweeps', 'back/dashboard/overview');
     }
     
     public function entries_widget()
@@ -110,7 +110,7 @@ class Sweeps_Manager extends Snap_Wordpress_Plugin
         // get the total entries
         $q = new WP_Query(array('post_type' => 'sweep_entry'));
         $GLOBALS['total_entries'] = $q->found_posts;
-        Snap_Wordpress_Template::load('sweeps', 'admin/dashboard/entries');
+        Snap_Wordpress_Template::load('sweeps', 'back/dashboard/entries');
     }
     
     /**
@@ -136,7 +136,7 @@ class Sweeps_Manager extends Snap_Wordpress_Plugin
                 wp_enqueue_script('sweeps-dashboard', SWEEPS_URL.'/resources/js/dashboard.js', array('highstock'));
                 $GLOBALS['campaigns'] = Snap::singleton('Sweeps_Campaign')->get_all();
                 $GLOBALS['counts'] = Snap::singleton('Sweeps_Entry')->get_counts();
-                Snap_Wordpress_Template::load('sweeps', 'admin/sweepstakes');
+                Snap_Wordpress_Template::load('sweeps', 'back/sweepstakes');
                 
         }
     }
