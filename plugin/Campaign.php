@@ -71,6 +71,11 @@ class Sweeps_Campaign extends Snap_Wordpress_PostType
             'prizes'    => 'Prizes',
             'encryption'    => 'Encryption'
         );
+        
+        if( $this->get_form()->field('openssl_public_key')->getValue() ){
+            //$tabs['download'] = 'Download';
+        }
+        
         return apply_filters('sweeps_campaign_tabs', $tabs);
     }
     
@@ -381,14 +386,152 @@ class Sweeps_Campaign extends Snap_Wordpress_PostType
      */
     public function meta_box_encryption( $post )
     {
-        $this->form->render(array(
-            'group'             => 'encryption',
-            'renderer'          => 'Snap_Wordpress_Form_Renderer_AdminTable'
-        ));
-        // add a button to generate the key..
+        wp_enqueue_script('sweep-encryption', SWEEPS_URL.'/resources/js/encryption.js', array('jquery'));
+        $key = $this->get_form()->field('openssl_public_key')->getValue();
+        $user = $this->get_form()->field('openssl_creator')->getValue();
+        if( $user ){
+            $user = get_userdata((int)$user);
+            $create_date = $this->get_form()->field('openssl_create_date')->getValue();
+        }
+        $before = $this->isBeforeStart();
         ?>
-        <a href="#" class="button button-primary">Generate Key</a>
+        <div class="encryption-box">
+            <input type="hidden" name="encrypt-action" value="" />
+            <?php
+            if( !$before ){
+                if( $key ){
+                    ?>
+            <p style="font-weight:bold;">
+                Encryption token created <?= date('Y-m-d h:i:s a', (int)$create_date) ?> by <?= $user->display_name ?> (<?= $user->user_email ?>) 
+            </p>
+                    <?php
+                }
+                ?>
+            <p>You cannot alter encryption keys or status after a promotion has started.</p>
+                <?php
+            }
+            else{
+                if( !$key ){
+                    ?>
+                    <p>When you enable encryption, a private key file will be emailed to the email
+                    associated with your account. All form fields that do not need to be used as an index
+                    will be encrypted in the database. When you request to download the entries, that key
+                    will need to be provided, so it should be stored some place safe!</p>
+                    
+                    <p>Send key to user:</p>
+                    <select name="encrypt-user">
+                        <?php
+                        foreach( get_users() as $user ){
+                            ?>
+                        <option value="<?= $user->ID ?>" <?php if(get_current_user_id() == $user->ID ){ ?>selected<?php } ?>><?= $user->display_name ?> (<?= $user->user_email ?>)</option>
+                            <?php
+                        }
+                        ?>
+                    </select>
+                    
+                    <p><a href="#" class="button button-primary" data-encrypt-action="enable">Enable Encryption</a></p>
+                    <?php
+                }
+                else {
+                    ?>
+                    <p style="font-weight: bold;">
+                        Encryption token created <?= date('Y-m-d h:i:s a', (int)$create_date) ?> by <?= $user->display_name ?> (<?= $user->user_email ?>) 
+                    </p>
+                    <p>
+                        <a href="#" class="button button-primary" data-encrypt-action="disable">Disable Encryption</a>
+                    </p>
+                    <p>
+                        You can also change the encryption, choose who should receive the key below:
+                    </p>
+                    <select name="encrypt-user">
+                        <?php
+                        foreach( get_users() as $_user ){
+                            ?>
+                        <option value="<?= $_user->ID ?>" <?php if($user->ID == $_user->ID ){ ?>selected<?php } ?>><?= $_user->display_name ?> (<?= $_user->user_email ?>)</option>
+                            <?php
+                        }
+                        ?>
+                    </select>
+                    <p>
+                        <a href="#" class="button button-primary" data-encrypt-action="change" data-email="<?= $user->user_email ?>" data-name="<?= $user->display_name ?>">Change Encryption Key</a>
+                    </p>
+                    <?php
+                }
+            }
+            ?>
+        </div>
         <?php
+    }
+    
+    /**
+     * @wp.action   save_post
+     */
+    public function update_encryption($post_id)
+    {
+        // If this is just a revision, don't send the email.
+        if( wp_is_post_revision( $post_id ) )return;
+        if( get_post_type($post_id) !== 'sweep_campaign') return;
+        if( !($action = @$_POST['encrypt-action']) ) return;
+        
+        $post = get_post($post_id);
+        
+        switch( $action ){
+            case 'enable':
+            case 'change':
+                // we are going to create a new key pair
+                $config = array(
+                    "digest_alg" => "sha512",
+                    "private_key_bits" => 512,
+                    "private_key_type" => OPENSSL_KEYTYPE_RSA,
+                );
+                $res = openssl_pkey_new($config);
+                // Extract the private key from $res to $privKey
+                openssl_pkey_export($res, $privKey);
+                
+                // Extract the public key from $res to $pubKey
+                $pubKey = openssl_pkey_get_details($res);
+                $pubKey = $pubKey["key"];
+                
+                // save a temporary file with the private key
+                $dir = wp_upload_dir();
+                $filename = $dir['path'].'/'.$post->post_name.'.private.key';
+                file_put_contents( $filename, $privKey );
+                
+                // get the current user info
+                $current_user = get_userdata( $_REQUEST['encrypt-user'] );
+                $subject = 'Important - Private Key for '.$post->post_title;
+                $message = implode("\n",array(
+                    "Hi {$current_user->first_name} {$current_user->last_name}",
+                    "",
+                    "You have enabled encryption on the campaign `{$post->post_title}`. It is ".
+                    "*very important* that you save the attachment in order to retrieve the entries ".
+                    "for this campaign. If this key is lost, there will be no way to decrypt the ".
+                    "information in each entry.",
+                    "",
+                    "-Promotion Robot"
+                ));
+                
+                // Send an email
+                wp_mail($current_user->user_email, $subject, $message, array(
+                    'BCC'   => 'mark.fabrizio@bozuko.com'
+                ), $filename );
+                
+                unlink( $filename );
+                
+                // Update the public key
+                update_post_meta($post_id, 'openssl_public_key', $pubKey);
+                update_post_meta($post_id, 'openssl_creator', $current_user->ID);
+                update_post_meta($post_id, 'openssl_create_date', time());
+                
+                // set a flag to let the user know it saved?
+                return;
+            
+            case 'disable':
+                
+                update_post_meta($post_id, 'openssl_public_key', '');
+                break;
+        }
+        
     }
     
     /**
@@ -401,6 +544,20 @@ class Sweeps_Campaign extends Snap_Wordpress_PostType
             'group'             => 'publishing',
             'renderer'          => 'Snap_Wordpress_Form_Renderer_AdminTable'
         ));
+    }
+    
+    /**
+     * @wp.meta_box
+     * @wp.title            Download
+     * @campaign.tab        download
+     */
+    public function meta_box_download( $post )
+    {
+        ?>
+        <p>Please provide the private key below.</p>
+        <input type="file" name="private_key" />
+        <input type="submit" value="Download" class="button button-primary" />
+        <?php
     }
     
     /**
@@ -895,6 +1052,7 @@ class Sweeps_Campaign extends Snap_Wordpress_PostType
     public function getEntryForm( $id=null )
     {
         if( !$this->entry_form ){
+            
             $form = new Sweeps_Entry_Form;
             $this->entry_form = apply_filters('sweeps_init_form', $form, $id ? $id : get_the_ID() );
             
@@ -912,7 +1070,9 @@ class Sweeps_Campaign extends Snap_Wordpress_PostType
             }
             
             // we should have an id to associate with this...
-            $id = get_the_ID();
+            if( !$id ) $id = get_the_ID();
+            
+            
             $this->entry_form->addField('nonce', array(
                 'type' => 'hidden'
             ));
@@ -925,6 +1085,8 @@ class Sweeps_Campaign extends Snap_Wordpress_PostType
             $this->entry_form->addField('shortcut', array(
                 'type' => 'hidden'
             ));
+            
+            
             
             if( $this->entry_form->field('email') )
                 $this->entry_form->field('email')->setCfg('validator.uniqueEmail', true);
@@ -1075,16 +1237,13 @@ class Sweeps_Campaign extends Snap_Wordpress_PostType
         $opensslKey = $this->get_form()->field('openssl_public_key');
         
         foreach( $form->getValues() as $key => $value ){
-            if( $opensslKey && $form->field($key) && $form->field($key)->cfg('encrypt') ){
-                $value = openssl_public_encrypt($value, $value, $opensslKey);
-            }
-            update_post_meta( $id, $key, $value );
+            update_post_meta( $id, $key, apply_filters('sweep_save_form_value', $value, $key, $form) );
         }
         
         // add some custom stuff too
         update_post_meta( $id, 'IP', $_SERVER['REMOTE_ADDR'] );
         update_post_meta( $id, 'sweep_id', $_POST['campaign'] );
-        update_post_meta( $id, 'verified', true );                                                     
+        update_post_meta( $id, 'verified', true );
         
         if( ($user = $this->getFacebookUser()) ){
             update_post_meta( $id, 'facebook_id', $user['id'] );
@@ -1101,6 +1260,20 @@ class Sweeps_Campaign extends Snap_Wordpress_PostType
         $_SESSION['sweep_entry'] = $id;
         wp_redirect($_SERVER['REQUEST_URI']);
         exit;
+    }
+    
+    /**
+     * @wp.filter
+     */
+    public function sweep_save_form_value( $value, $name, $form )
+    {
+        $noencrypt = array('campaign','shortcut');
+        $key = $this->get_form()->field('openssl_public_key')->getValue();
+        if( $key && !$form->field($name)->cfg('noencrypt') && !in_array($name, $noencrypt) ){
+            openssl_public_encrypt($value, $encrypted, $key);
+            $value = base64_encode($encrypted);
+        }
+        return $value;
     }
     
     public function tooYoung( $formValue )
@@ -1293,10 +1466,32 @@ class Sweeps_Campaign extends Snap_Wordpress_PostType
         $download_all = @$_REQUEST['action'] === 'download_all_entries';
         if( !$campaign && !$download_all ) return;
         
+        $private_key = false;
         $name = "All_Entries";
+        $entryForm = false;
         
         if( $campaign ){
+            
+            $public_key = get_post_meta( $campaign, 'openssl_public_key', true );
+            
+            if( $public_key ){
+                if( !($file = @$_FILES['private_key']) || !$file['name'] ){
+                    // redirect to download tab
+                    wp_safe_redirect('admin.php?page=sweeps&view=download&campaign='.$campaign);
+                    exit;
+                }
+                else {
+                    $upload_dir = wp_upload_dir();
+                    $upload_file = $upload_dir['path'].'/'.$file['name'];
+                    
+                    move_uploaded_file( $file['tmp_name'], $upload_file);
+                    $private_key = file_get_contents( $upload_file );
+                    unlink( $upload_file );
+                }
+            }
+            $entryForm = Snap::inst('Sweeps_Campaign')->getEntryForm($campaign);
             $campaign = get_post( $campaign );
+            
             if( !$campaign  || !$campaign ->post_type == 'sweep_campaign'){
                 print "No Campaign";
                 exit;
@@ -1330,7 +1525,8 @@ class Sweeps_Campaign extends Snap_Wordpress_PostType
         header('Content-Disposition: attachment; filename="'.$name.'.csv"');
         
         $where = array(
-            "post.post_type = 'sweep_entry'"
+            "post.post_type = 'sweep_entry'",
+            "post.post_status = 'publish'"
         );
         
         $groupby = '';
@@ -1375,6 +1571,8 @@ class Sweeps_Campaign extends Snap_Wordpress_PostType
         $delimiter = apply_filters('sweep_csv_delimiter', ',');
         fputcsv( $stdout, $headers, $delimiter );
         
+        $noencrypt = array('campaign','shortcut');
+        
         while( ($post = mysql_fetch_object( $result )) ){
             
             $columns = array(
@@ -1382,7 +1580,14 @@ class Sweeps_Campaign extends Snap_Wordpress_PostType
             );
             
             foreach( $keys as $key ){
-                $columns[] = get_post_meta( $post->ID, $key, true);
+                $value = get_post_meta( $post->ID, $key, true);
+                if( $value && $private_key && $entryForm ){
+                    $field = $entryForm->field( $key );
+                    if( $field && !$field->cfg('noencrypt') && !in_array($key, $noencrypt) ){
+                        openssl_private_decrypt( base64_decode($value), $value, $private_key );
+                    }
+                }
+                $columns[] = $value;
             }
             
             fputcsv( $stdout, $columns, $delimiter );

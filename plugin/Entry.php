@@ -147,11 +147,6 @@ class Sweeps_Entry extends Snap_Wordpress_PostType
     public function sortable_columns( $columns )
     {
         $columns['email']       = 'email';
-        $columns['last_name']   = 'last_name';
-        $columns['first_name']  = 'first_name';
-        $columns['postal_code'] = 'postal_code';
-        $columns['winner'] = 'winner';
-        
         return $columns;
     }
     
@@ -163,10 +158,6 @@ class Sweeps_Entry extends Snap_Wordpress_PostType
         $entry_columns = array(
             'cb'            => $columns['cb'],
             'title'         => 'Email',
-            'last_name'     => 'Last Name',
-            'first_name'    => 'First Name',
-            'postal_code'   => 'Postal Code',
-            'winner'        => 'Winner',
             'date'          => 'Date'
         );
         return $entry_columns;
@@ -206,10 +197,25 @@ class Sweeps_Entry extends Snap_Wordpress_PostType
     public function meta_box_entry( $post )
     {
         if( $post->post_type != $this->name ) return;
+        
+        $noencrypt = array('campaign','shortcut');
+        
+        $values = $this->form->getValues();
+        foreach( $values as $name => $value ){
+            if( !$this->form->field($name)->cfg('noencrypt') && !in_array($name, $noencrypt) ){
+                $this->form->removeField($name);
+            }
+        }
+        
+        $this->form->setValues( $values );
+        
         $this->form->render(array(
             'renderer'          => 'Snap_Wordpress_Form_Renderer_AdminTable',
             'formerrors'        => true
         ));
+        
+        
+        
     }
     
     public function get_counts( $start = null, $end = null, $campaign = null )

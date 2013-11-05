@@ -127,6 +127,14 @@ class Sweeps_Manager extends Snap_Wordpress_Plugin
     {
         switch( @$_REQUEST['view'] ){
             
+            case 'download':
+                
+                $campaign = get_post( @$_REQUEST['campaign'] );
+                $view = new Snap_Wordpress_View('sweeps', 'back/download');
+                $view->set('campaign', $campaign );
+                $view->render();
+                return;
+            
             case 'campaign':
             default:
             

@@ -7,6 +7,7 @@ class Sweeps_Entry_Form extends Snap_Wordpress_Form
      * @form.field.label                Email
      * @form.field.validator.email
      * @form.field.validator.notEmpty
+     * @form.field.noencrypt
      */
     public $email;
     
@@ -15,6 +16,7 @@ class Sweeps_Entry_Form extends Snap_Wordpress_Form
      * @form.field.label                Phone Number
      * @form.field.validator.phone
      * @form.field.validator.notEmpty
+     * @form.field.noencrypt
      */
     public $phone;
     
