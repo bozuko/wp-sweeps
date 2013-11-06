@@ -148,6 +148,22 @@ class Sweeps extends Snap_Wordpress_Plugin
     }
     
     /**
+     * @wp.filter
+     */
+    public function wp_mail_from()
+    {
+        return 'no-reply@bozuko.com';
+    }
+    
+    /**
+     * @wp.filter
+     */
+    public function wp_mail_from_name()
+    {
+        return 'Bozuko';
+    }
+    
+    /**
      * @wp.action
      */
     function init()
