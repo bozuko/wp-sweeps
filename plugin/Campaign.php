@@ -1487,6 +1487,16 @@ class Sweeps_Campaign extends Snap_Wordpress_PostType
                     move_uploaded_file( $file['tmp_name'], $upload_file);
                     $private_key = file_get_contents( $upload_file );
                     unlink( $upload_file );
+                    
+                    // test to make sure this is a valid key
+                    $verify = 'verify matching private key';
+                    openssl_public_encrypt($verify, $encrypted, $public_key);
+                    openssl_private_decrypt($encrypted, $decrypted, $private_key);
+                    if( $decrypted != $verify ){
+                        // this is not a valid key.
+                        wp_safe_redirect('admin.php?page=sweeps&view=download&campaign='.$campaign.'&error='.urlencode('Invaid key file'));
+                    }
+                    
                 }
             }
             $entryForm = Snap::inst('Sweeps_Campaign')->getEntryForm($campaign);
