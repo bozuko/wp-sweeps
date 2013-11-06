@@ -36,6 +36,58 @@ class Sweeps extends Snap_Wordpress_Plugin
         );
     }
     
+    /**
+     * @wp.action       save_post
+     * @wp.priority     200
+     */
+    public function update_cron( $post_id )
+    {
+        if( get_post_type( $post_id ) != 'sweep_campaign' ) return;
+        if( get_post_meta('notifications') == 'daily' ){
+            if( !wp_next_scheduled('sweeps_send_summary', array( $post_id ) ) ){
+                wp_schedule_event(time(), 'daily', 'sweeps_send_notification', array( $post_id ) );
+            }
+        }
+        else {
+            if( wp_next_scheduled('sweeps_send_summary', array( $post_id ) ) ){
+                wp_clear_scheduled_hook('sweeps_send_notification', array($post_id) );
+            }
+        }
+    }
+    
+    /**
+     * @wp.action       sweeps_send_summary
+     */
+    public function sweeps_send_summary( $campaign_id )
+    {
+        $custom = get_post_custom( $campaign_id );
+        if( !$custom || !is_array($custom) || @$custom['notifications'][0] != 'daily' ){
+            return;
+        }
+        
+        $emails = @$custom['notificationEmails'];
+        if( !$emails ){
+            return;
+        }
+        
+        $emails = explode(', ', $emails);
+        $title = get_the_title( $campaign_id );
+        
+        
+        $message = array(
+            "Daily summary for the `{$title}` promotion:",
+            "",
+            "{$daily} entries today",
+            "{$weekly} entries in the last week",
+            "{$total} entries total",
+            "",
+            "-Promotion Robot"
+        );
+    
+        
+        wp_mail( $emails, 'Daily Summary for '.$title, implode("\n", $message) );
+    }
+    
     public static function log()
     {
         $args = func_get_args();

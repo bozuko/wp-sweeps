@@ -95,6 +95,34 @@ class Sweeps_Campaign_Form extends Snap_Wordpress_Form
     
     /**
      * @form.field.type             select
+     * @form.field.label            Notifications
+     * @form.field.group            publishing
+     */
+    public $notifications;
+    
+    /**
+     * @form.field.type             text
+     * @form.field.label            Notification Emails
+     * @form.field.group            publishing
+     */
+    public $notificationEmails;
+    
+    /**
+     * @form.field.type             textarea
+     * @form.field.label            Notification Email Subject
+     * @form.field.group            publishing
+     */
+    public $notificationEmailSubject;
+    
+    /**
+     * @form.field.type             textarea
+     * @form.field.label            Notification Email Body
+     * @form.field.group            publishing
+     */
+    public $notificationEmailBody;
+    
+    /**
+     * @form.field.type             select
      * @form.field.label            Like Gate
      * @form.field.group            facebook_app
      * @form.field.description      If this is set to "Always", we will collect Facebook Ids and users must accept basic permissions of the custom app.
@@ -282,6 +310,12 @@ class Sweeps_Campaign_Form extends Snap_Wordpress_Form
     {
         $options = array();
         switch( $name ){
+            case 'notifications':
+              $options = array(
+                ''        => 'Disabled',
+                'daily'   => 'Daily'
+              );
+              break;
             case 'timezone':
                 foreach( timezone_identifiers_list() as $timezone ){
                     if ( !preg_match( '/^(America|Antartica|Arctic|Asia|Atlantic|Europe|Indian|Pacific)\//', $timezone ) ) continue;
