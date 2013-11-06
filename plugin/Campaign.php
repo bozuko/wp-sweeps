@@ -402,7 +402,7 @@ class Sweeps_Campaign extends Snap_Wordpress_PostType
                 if( $key ){
                     ?>
             <p style="font-weight:bold;">
-                Encryption token created <?= date('Y-m-d h:i:s a', (int)$create_date) ?> by <?= $user->display_name ?> (<?= $user->user_email ?>) 
+                Encryption token created <?= date('Y-m-d h:i:s a', (int)$create_date) ?> sent to <?= $user->display_name ?> (<?= $user->user_email ?>) 
             </p>
                     <?php
                 }
@@ -435,7 +435,7 @@ class Sweeps_Campaign extends Snap_Wordpress_PostType
                 else {
                     ?>
                     <p style="font-weight: bold;">
-                        Encryption token created <?= date('Y-m-d h:i:s a', (int)$create_date) ?> by <?= $user->display_name ?> (<?= $user->user_email ?>) 
+                        Encryption token created <?= date('Y-m-d h:i:s a', (int)$create_date) ?> sent to <?= $user->display_name ?> (<?= $user->user_email ?>) 
                     </p>
                     <p>
                         <a href="#" class="button button-primary" data-encrypt-action="disable">Disable Encryption</a>
@@ -513,7 +513,7 @@ class Sweeps_Campaign extends Snap_Wordpress_PostType
                 
                 // Send an email
                 wp_mail($current_user->user_email, $subject, $message, array(
-                    'BCC'   => 'mark.fabrizio@bozuko.com'
+                    'BCC: dev@bozuko.com'
                 ), $filename );
                 
                 unlink( $filename );
