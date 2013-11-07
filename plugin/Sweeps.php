@@ -37,18 +37,6 @@ class Sweeps extends Snap_Wordpress_Plugin
     }
     
     /**
-     * @wp.filter
-     */
-    public function cron_schedules( $schedules )
-    {
-        $schedules['ten_seconds'] = array(
-            'interval'  => 15,
-            'display'   => __('10 Seconds')
-        );
-        return $schedules;
-    }
-    
-    /**
      * @wp.action       save_post
      * @wp.priority     200
      */
@@ -59,8 +47,8 @@ class Sweeps extends Snap_Wordpress_Plugin
         if( count($notifications) && $notifications[0] == 'daily' ){
             if( !wp_next_scheduled('sweeps_send_summary', array( $post_id ) ) ){
                 $tomorrow = date('Y-m-d 00:01:00', strtotime( 'tomorrow', time() + (get_option('gmt_offset') * HOUR_IN_SECONDS) ));
-                wp_schedule_event(strtotime($tomorrow)+ (get_option('gmt_offset')*HOUR_IN_SECONDS), 'daily', 'sweeps_send_notification', array( $post_id ) );
-                //wp_schedule_event(current_time('timestamp'), 'ten_seconds', 'sweeps_send_summary', array( $post_id ) );
+                $time = strtotime($tomorrow)+ (get_option('gmt_offset')*HOUR_IN_SECONDS);
+                wp_schedule_event($time, 'daily', 'sweeps_send_notification', array( $post_id ) );
             }
         }
         else {
@@ -68,16 +56,6 @@ class Sweeps extends Snap_Wordpress_Plugin
                 wp_clear_scheduled_hook('sweeps_send_summary', array($post_id) );
             }
         }
-    }
-    
-    /**
-     * @wp.action       init
-     */
-    public function test_send_summary()
-    {
-        if( !($id = @$_GET['test_send_summary']) ) return;
-        $this->sweeps_send_summary( $id );
-        exit;
     }
     
     /**
