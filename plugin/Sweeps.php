@@ -47,7 +47,8 @@ class Sweeps extends Snap_Wordpress_Plugin
         if( count($notifications) && $notifications[0] == 'daily' ){
             if( !wp_next_scheduled('sweeps_send_summary', array( $post_id ) ) ){
                 $tomorrow = date('Y-m-d 00:01:00', strtotime( 'tomorrow', time() + (get_option('gmt_offset') * HOUR_IN_SECONDS) ));
-                wp_schedule_event(strtotime($tomorrow), 'daily', 'sweeps_send_notification', array( $post_id ) );
+                $time = strtotime($tomorrow) - (get_option('gmt_offset') * HOUR_IN_SECONDS);
+                wp_schedule_event($time, 'daily', 'sweeps_send_notification', array( $post_id ) );
             }
         }
         else {
