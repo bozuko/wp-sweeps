@@ -1,9 +1,6 @@
 <?php
 global $campaigns, $counts;
 $sweeps_campaign = Snap::singleton('Sweeps_Campaign');
-
-echo date('Y-m-d 00:01:00', strtotime( 'midnight', time() + (get_option('gmt_offset') * HOUR_IN_SECONDS) ));
-
 ?>
 
 <div class="wrap">
