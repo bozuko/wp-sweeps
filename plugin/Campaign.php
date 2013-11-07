@@ -291,10 +291,8 @@ class Sweeps_Campaign extends Snap_Wordpress_PostType
         switch( $column ) {
             case 'entries':
                 // need to get the count
-                $query = self::get_entries($post);
-                
                 echo '<a href="edit.php?post_type=sweep_entry&amp;campaign='.$post->ID.'"><strong>'.
-                    self::get_entry_count($post).'</strong></a>';
+                    self::get_entry_count($post->ID).'</strong></a>';
                 echo
                     '<div class="row-actions">'.
                         '<span><a href="edit.php?post_type=sweep_entry&amp;campaign='.$post->ID.'">View</a> | </span>'.
@@ -354,16 +352,15 @@ class Sweeps_Campaign extends Snap_Wordpress_PostType
         return $query[$id];
     }
     
-    public static function get_entry_count( $post=null, $from=null, $to=null )
+    public static function get_entry_count( $id, $from=null, $to=null )
     {
         global $wpdb;
-        $id = $post ? $post->ID : get_the_ID();
         $times = '';
         if( $from ){
-            $times .= "\nAND post_date >= '$from'";
+            $times .= "\nAND `post_date` >= '$from'";
         }
         if( $to ){
-            $times .= "\nAND post_date <= '$to'";
+            $times .= "\nAND `post_date` < '$to'";
         }
         return $wpdb->get_var("
             SELECT COUNT(*) FROM {$wpdb->posts}

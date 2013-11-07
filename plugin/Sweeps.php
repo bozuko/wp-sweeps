@@ -37,22 +37,47 @@ class Sweeps extends Snap_Wordpress_Plugin
     }
     
     /**
+     * @wp.filter
+     */
+    public function cron_schedules( $schedules )
+    {
+        $schedules['ten_seconds'] = array(
+            'interval'  => 15,
+            'display'   => __('10 Seconds')
+        );
+        return $schedules;
+    }
+    
+    /**
      * @wp.action       save_post
      * @wp.priority     200
      */
     public function update_cron( $post_id )
     {
         if( get_post_type( $post_id ) != 'sweep_campaign' ) return;
-        if( get_post_meta('notifications') == 'daily' ){
+        $notifications = get_post_meta($post_id, 'notifications');
+        if( count($notifications) && $notifications[0] == 'daily' ){
             if( !wp_next_scheduled('sweeps_send_summary', array( $post_id ) ) ){
-                wp_schedule_event(time(), 'daily', 'sweeps_send_notification', array( $post_id ) );
+                $tomorrow = date('Y-m-d 00:01:00', strtotime( 'tomorrow', time() + (get_option('gmt_offset') * HOUR_IN_SECONDS) ));
+                wp_schedule_event(strtotime($tomorrow)+ (get_option('gmt_offset')*HOUR_IN_SECONDS), 'daily', 'sweeps_send_notification', array( $post_id ) );
+                //wp_schedule_event(current_time('timestamp'), 'ten_seconds', 'sweeps_send_summary', array( $post_id ) );
             }
         }
         else {
             if( wp_next_scheduled('sweeps_send_summary', array( $post_id ) ) ){
-                wp_clear_scheduled_hook('sweeps_send_notification', array($post_id) );
+                wp_clear_scheduled_hook('sweeps_send_summary', array($post_id) );
             }
         }
+    }
+    
+    /**
+     * @wp.action       init
+     */
+    public function test_send_summary()
+    {
+        if( !($id = @$_GET['test_send_summary']) ) return;
+        $this->sweeps_send_summary( $id );
+        exit;
     }
     
     /**
@@ -70,22 +95,25 @@ class Sweeps extends Snap_Wordpress_Plugin
             return;
         }
         
-        $emails = explode(', ', $emails);
+        $emails = explode(', ', $emails[0]);
         $title = get_the_title( $campaign_id );
         
+        $midnight = strtotime( 'midnight', time() + (get_option('gmt_offset') * HOUR_IN_SECONDS) );
+        $daily = Sweeps_Campaign::get_entry_count( $campaign_id, date('Y-m-d H:i:s', strtotime( '-1 day', $midnight)));
+        $weekly = Sweeps_Campaign::get_entry_count( $campaign_id, date('Y-m-d H:i:s', strtotime( '-1 week', $midnight)));
+        $total = Sweeps_Campaign::get_entry_count( $campaign_id );
         
         $message = array(
             "Daily summary for the `{$title}` promotion:",
             "",
-            "{$daily} entries today",
+            "{$daily} entries yesterday",
             "{$weekly} entries in the last week",
             "{$total} entries total",
             "",
-            "-Promotion Robot"
+            "-D.L. Blair Digital Promotions"
         );
-    
         
-        wp_mail( $emails, 'Daily Summary for '.$title, implode("\n", $message) );
+        wp_mail( $emails, 'Daily Entry Summary for '.$title, implode("\n", $message) );
     }
     
     public static function log()
@@ -152,7 +180,7 @@ class Sweeps extends Snap_Wordpress_Plugin
      */
     public function wp_mail_from()
     {
-        return 'no-reply@bozuko.com';
+        return 'no-reply@dlblairsweeps.com';
     }
     
     /**
@@ -160,7 +188,7 @@ class Sweeps extends Snap_Wordpress_Plugin
      */
     public function wp_mail_from_name()
     {
-        return 'Bozuko';
+        return 'D.L. Blair Digital Promotions';
     }
     
     /**

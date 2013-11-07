@@ -107,19 +107,6 @@ class Sweeps_Campaign_Form extends Snap_Wordpress_Form
      */
     public $notificationEmails;
     
-    /**
-     * @form.field.type             textarea
-     * @form.field.label            Notification Email Subject
-     * @form.field.group            publishing
-     */
-    public $notificationEmailSubject;
-    
-    /**
-     * @form.field.type             textarea
-     * @form.field.label            Notification Email Body
-     * @form.field.group            publishing
-     */
-    public $notificationEmailBody;
     
     /**
      * @form.field.type             select
