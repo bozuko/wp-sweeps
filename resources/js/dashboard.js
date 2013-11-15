@@ -20,14 +20,12 @@ jQuery(function($){
 			for(var i=0; i<chart_data.length; i++){
 				var date = chart_data[i].date.split('-');
 				data[i] = [
-					+(new Date(date[0],date[1]-1,date[2])), parseInt(chart_data[i].entries)
+					+(new Date(date[0],date[1]-1,date[2])), parseInt(chart_data[i].entries, 10)
 				];
 			}
+			console.log(data);
 			
-			var entryChart = new Highcharts.StockChart({
-				chart : {
-					renderTo : $chart[0]
-				},
+			var entryChart = $chart.highcharts('StockChart',{
 				
 				yAxis : {
 					min: 0
@@ -42,6 +40,7 @@ jQuery(function($){
 				},
 				
 				series : [{
+					type : 'column',
 					name : 'Entries',
 					data : data,
 					tooltip: {

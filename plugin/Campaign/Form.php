@@ -299,8 +299,11 @@ class Sweeps_Campaign_Form extends Snap_Wordpress_Form
         switch( $name ){
             case 'notifications':
               $options = array(
-                ''        => 'Disabled',
-                'daily'   => 'Daily'
+                ''            => 'Disabled',
+                'daily'       => 'Daily',
+                'tenseconds'  => 'Ten Seconds',
+                'hourly'      => 'Hourly',
+                'weekly'      => 'Weekly'
               );
               break;
             case 'timezone':

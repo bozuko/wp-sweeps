@@ -4,7 +4,7 @@
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 		<title>Highstock Example</title>
 
-		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
 		<script type="text/javascript">
 $(function() {
 	var seriesOptions = [],
@@ -37,9 +37,8 @@ $(function() {
 	// create the chart when all data is loaded
 	function createChart() {
 
-		chart = new Highcharts.StockChart({
+		$('#container').highcharts('StockChart', {
 		    chart: {
-		        renderTo: 'container'
 		    },
 
 		    rangeSelector: {
@@ -78,8 +77,8 @@ $(function() {
 		</script>
 	</head>
 	<body>
-<script src="http://code.highcharts.com/stock/highstock.js"></script>
-<script src="http://code.highcharts.com/stock/modules/exporting.js"></script>
+<script src="../../js/highstock.js"></script>
+<script src="../../js/modules/exporting.js"></script>
 
 <div id="container" style="height: 500px; min-width: 600px"></div>
 	</body>

@@ -36,6 +36,27 @@ class Sweeps extends Snap_Wordpress_Plugin
         );
     }
     
+     /**
+     * @wp.filter
+     */
+    public function cron_schedules( $schedules )
+    {
+        $schedules['tenseconds'] = array(
+            'interval'  => 10,
+            'display'   => 'Ten Seconds'
+        );
+        $schedules['weekly'] = array(
+            'interval'  => 60*60*24*7,
+            'display'   => 'Weekly'
+        );
+        $schedules['hourly'] = array(
+            'interval'  => 60*60,
+            'display'   => 'Hourly'
+        );
+        return $schedules;
+    }
+    
+    
     /**
      * @wp.action       save_post
      * @wp.priority     200
@@ -44,11 +65,15 @@ class Sweeps extends Snap_Wordpress_Plugin
     {
         if( get_post_type( $post_id ) != 'sweep_campaign' ) return;
         $notifications = get_post_meta($post_id, 'notifications');
-        if( count($notifications) && $notifications[0] == 'daily' ){
+        
+        if( count($notifications) && $notifications[0] ){
             if( !wp_next_scheduled('sweeps_send_summary', array( $post_id ) ) ){
-                $tomorrow = date('Y-m-d 00:01:00', strtotime( 'tomorrow', time() + (get_option('gmt_offset') * HOUR_IN_SECONDS) ));
-                $time = strtotime($tomorrow) - (get_option('gmt_offset') * HOUR_IN_SECONDS);
-                wp_schedule_event($time, 'daily', 'sweeps_send_notification', array( $post_id ) );
+                $time = time();
+                if( in_array($notifications[0], array('daily','weekly')) ){
+                    $tomorrow = date('Y-m-d 00:01:00', strtotime( 'tomorrow', time() + (get_option('gmt_offset') * HOUR_IN_SECONDS) ));
+                    $time = strtotime($tomorrow) - (get_option('gmt_offset') * HOUR_IN_SECONDS);
+                }
+                wp_schedule_event($time, $notifications[0], 'sweeps_send_summary', array( $post_id ) );
             }
         }
         else {
@@ -59,12 +84,22 @@ class Sweeps extends Snap_Wordpress_Plugin
     }
     
     /**
+     * @wp.action       admin_init
+     */
+    public function test_summary_email()
+    {
+        if( !@$_REQUEST['test_summary_email'] ) return;
+        $this->sweeps_send_summary( $_REQUEST['test_summary_email'] );
+        exit;
+    }
+    
+    /**
      * @wp.action       sweeps_send_summary
      */
     public function sweeps_send_summary( $campaign_id )
     {
         $custom = get_post_custom( $campaign_id );
-        if( !$custom || !is_array($custom) || @$custom['notifications'][0] != 'daily' ){
+        if( !$custom || !is_array($custom) || !@$custom['notifications'][0] ){
             return;
         }
         
