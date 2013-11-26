@@ -23,7 +23,7 @@ $sweeps_campaign = Snap::singleton('Sweeps_Campaign');
         <tr>
             <td><?= get_the_title() ?></td>
             <td><?= $sweeps_campaign->isActive() ? 'Active' : $sweeps_campaign->isBeforeStart() ? 'Upcoming' : 'Past' ?></td>
-            <td><?= $sweeps_campaign->get_entries()->found_posts ?></td>
+            <td><?= $sweeps_campaign->get_entry_count(get_the_ID()) ?></td>
         </tr>
     <? endwhile; ?>
     </tbody>

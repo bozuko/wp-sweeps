@@ -1492,6 +1492,9 @@ class Sweeps_Campaign extends Snap_Wordpress_PostType
         $entryForm = false;
         
         if( $campaign ){
+            global $post;
+            $post = get_post($campaign);
+            setup_postdata( $post );
             
             $public_key = get_post_meta( $campaign, 'openssl_public_key', true );
             

@@ -17,12 +17,10 @@ jQuery(function($){
         xfbml       :true  // parse XFBML
     });
     
-    
-    
     (function form(){
         var $form = $('.the-form form');
         
-        if( !$form.length ) return;
+        if( !$form.length || window.custom_form_handler ) return;
         
         var $form_ct = $form.parents('.indented-form')
           , action = $form.attr('action')
