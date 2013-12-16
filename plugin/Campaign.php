@@ -1490,6 +1490,9 @@ class Sweeps_Campaign extends Snap_Wordpress_PostType
         $private_key = false;
         $name = "All_Entries";
         $entryForm = false;
+
+	set_time_limit(0);
+	ini_set('memory_limit', '256M');
         
         if( $campaign ){
             global $post;
@@ -1535,7 +1538,7 @@ class Sweeps_Campaign extends Snap_Wordpress_PostType
         
         $this->register_template( $campaign );
         
-        global $wpdb;
+        global $wpdb, $wp_actions;
         
         $q = "
             SELECT DISTINCT(meta.meta_key)
@@ -1606,7 +1609,7 @@ class Sweeps_Campaign extends Snap_Wordpress_PostType
         fputcsv( $stdout, $headers, $delimiter );
         
         $noencrypt = array('campaign','shortcut');
-        
+        $count = 0;
         while( ($post = mysql_fetch_object( $result )) ){
             
             $columns = array(
@@ -1623,6 +1626,11 @@ class Sweeps_Campaign extends Snap_Wordpress_PostType
                 }
                 $columns[] = $value;
             }
+	    if( $count % 1000 === 0 ){
+		wp_cache_flush();
+		$wpdb->queries = array();
+		$wp_actions = array();
+	    }
             
             fputcsv( $stdout, $columns, $delimiter );
             unset( $post );
