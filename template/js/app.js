@@ -61,7 +61,7 @@ jQuery(function($){
                 if( data.age_restriction ){
                     // set the cookie because
                     $.cookie('sweep_age_restriction',1,{expires:1});
-                    mask('age-restriction', 'age-restriction', 'Sorry, you are not eligible to enter.<div class="subtext">See official rules below for details.</div>');
+                    mask('age-restriction', 'age-restriction', 'Sorry, you are not eligible to enter.<div class="subtext">See <a href="#official-rules">Official Rules</a> below for details.</div>');
                     return;
                 }
                 
@@ -278,12 +278,15 @@ jQuery(function($){
     
     function unmask()
     {
+        $('body').removeClass('masked');
         $('.entry-mask').removeClass('active-mask');
     }
     
     function mask(id, classes, content, cb)
     {
         unmask();
+        
+        $('body').addClass('masked');
         
         if( $('#'+id).length ){
             $('#'+id).addClass('active-mask');
